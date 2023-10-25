@@ -18,7 +18,7 @@ library(janitor)
 library(readr)
 ```
 
-#READ DATA
+# READ DATA
 ```{r}
 #read files 
 cast <- readr::read_tsv('/Users/taku_mh/Documents/GitHub/Movie-Reccomendation-System/data/cast.tsv')
@@ -30,7 +30,7 @@ title <- readr::read_tsv('/Users/taku_mh/Documents/GitHub/Movie-Reccomendation-S
 movies <- readr::read_tsv('/Users/taku_mh/Documents/GitHub/Movie-Reccomendation-System/data/movies.tsv', show_col_types = FALSE)
 ```
 
-#SELECT AND DROP COLUMNS
+# SELECT AND DROP COLUMNS
 
 ```{r}
 #select relevant columns
@@ -52,12 +52,18 @@ print(unique(title_clean$titleType))
 movie_clean <- movies %>% 
   filter(ordering %in% c("1"))
 
+title_clean <- title_clean %>% 
+  rename("titleId" = "tconst")
+
 #create a joined movie_df
-merged_movies <- left_join(movie_clean, title_clean, 
-                           by = c("titleId" = "tconst"))
+merged_movies <- merge(movie_clean, title_clean, by="titleId")
 
 ```
+# Calculate missingness
 
+```{r}
+
+```
 
 
 
