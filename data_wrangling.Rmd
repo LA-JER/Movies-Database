@@ -19,7 +19,7 @@ library(readr)
 ```
 
 # READ DATA
-```{r}
+```{r, eval=FALSE}
 #read files 
 cast <- readr::read_tsv('/Users/taku_mh/Documents/GitHub/Movie-Reccomendation-System/data/cast.tsv')
 
@@ -32,7 +32,7 @@ movies <- readr::read_tsv('/Users/taku_mh/Documents/GitHub/Movie-Reccomendation-
 
 # SELECT AND DROP COLUMNS
 
-```{r}
+```{r, eval=FALSE}
 #select relevant columns
 ratings <- 
   ratings %>% 
@@ -59,34 +59,82 @@ title_clean <- title_clean %>%
 merged_movies <- merge(movie_clean, title_clean, by="titleId")
 
 ```
-# Calculate missingness
+#create csvs
 
-```{r}
+```{r, eval=FALSE}
+#write movie csv
+write.csv(merged_movies,
+     file = "/Users/taku_mh/Documents/GitHub/Movie-Reccomendation-System/data/movies.csv",
+     row.names = FALSE)
 
+#write ratings csv
+write.csv(ratings,
+     file = "/Users/taku_mh/Documents/GitHub/Movie-Reccomendation-System/data/ratings.csv",
+     row.names = FALSE)
 
-
-# get column names in df
-column_names <- names(movie_clean)
-
-# initialize dic to store info
-missing_values_per_column <- {}
-
-for (column_name in column_names) {
-  
-  # Replace the "\N" values in the col column of the df data frame with the NA value
-  movie_clean$column_name <- gsub("\\\\N", NA, movie_clean$column_name)
-  
-  # # count missing values
-  # n_missing_values <- sum(is.na(movie_clean[[column_name]]))
-  # 
-  # # Store in dic
-  # missing_values_per_column[[column_name]] <- n_missing_values
-}
-
-# # print dic
-# print(missing_values_per_column)
-
+#write cast csv
+write.csv(cast,
+     file = "/Users/taku_mh/Documents/GitHub/Movie-Reccomendation-System/data/cast.csv",
+     row.names = FALSE)
 ```
 
+#load csvs
 
+```{r}
+movie <- read.csv("data/movies.csv")
+casts <- read.csv("data/cast.csv")
+rating <- read.csv("data/ratings.csv")
+```
 
+#rename columns
+```{r}
+#movies
+movie <-
+  movie %>% 
+  select(titleId,
+         region,
+         language,
+         types,
+         primaryTitle,
+         isAdult,
+         startYear,
+         runtimeMinutes,
+         genres) %>% 
+  rename("title" = "primaryTitle",
+         "year" = "startYear",
+         "runtime" = "runtimeMinutes",
+         "movieId" = "titleId")
+
+#cast
+casts <-
+  casts %>% 
+  rename("castId" = "nconst",
+         "roles" = "primaryProfession",
+         "movies" = "knownForTitles")
+```
+
+# get all unique values
+```{r}
+genres <-
+  unique(unlist(strsplit(as.character(movie$genres), ",")))
+
+genres
+
+roles <-
+  unique(unlist(strsplit(as.character(casts$roles), ",")))
+
+roles
+```
+
+#update csvs
+```{r}
+#write movie csv
+write.csv(movie,
+     file = "/Users/taku_mh/Documents/GitHub/Movie-Reccomendation-System/data/movies.csv",
+     row.names = FALSE)
+
+#write cast csv
+write.csv(casts,
+     file = "/Users/taku_mh/Documents/GitHub/Movie-Reccomendation-System/data/cast.csv",
+     row.names = FALSE)
+```
