@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: color-mix(in srgb, #fff, #0b1d28 97%);
+            color: #fff; /* Light text color */
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        header {
+            background-color: color-mix(in srgb, #fff, #0b1d28 87%);
+            padding: 10px;
+            text-align: center;
+        }
+
+        main {
+            padding: 20px;
+            
+        }
+	
+	
+
+        /* Style for clickable div */
+        .clickable-div {
+            background-color: color-mix(in srgb, #fff, #0b1d28 97%);
+            color: #fff;
+            padding: 20px;
+            margin: 10px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        
+
+        .clickable-div:hover {
+            background-color: color-mix(in srgb, #fff, #0b1d28 75%);
+        }
+
+
+	
+        #searchBar {
+            display: flex;
+            gap: 10px;
+        }
+
+        #sqlInput {
+            padding: 10px;
+            flex: 1;
+        }
+
+        #executeButton {
+            padding: 10px;
+            background-color: #2196F3;
+            color: #fff;
+            cursor: pointer;
+            border: none;
+        }
+   
+
+
+        button {
+                background-color: color-mix(in srgb, #fff, #0b1d28 97%);
+                color: #fff;
+                padding: 10px 20px;
+                margin: 5px;
+                border: none;
+                cursor: pointer;
+                transition: background-color 0.3s;
+        }
+
+        button:hover {
+                background-color: color-mix(in srgb, #fff, #0b1d28 87%);
+        }
+
+
+
+
+    </style>
+    <link rel="stylesheet" href="https://unpkg.com/ag-grid-community/styles/ag-grid.css">
+    <link rel="stylesheet" href="https://unpkg.com/ag-grid-community/styles/ag-theme-quartz.css">
+	
+        <!-- Bootstrap CSS (Buttons and Utilities) -->
+
+
+    <title>Search Database</title>
+</head>
+<body>
+    <header>
+
+
+
+        <h1>Search</h1>
+
+
+	
+    </header>
+    <main>
+
+
+	<div id="searchBar">
+        	<input type="text" id="sqlInput" placeholder="Enter your SQL query here">
+        	<button id="executeButton" onclick="executeSearch()">Execute</button>
+    	</div>
+
+        <form id="queryForm">
+            <label for="table">Table:</label>
+            <select id="table" onchange="updateColumns()">
+                <option value="movies">Movies</option>
+                <option value="movie_cast">Actors</option>
+                <option value="ratings">Ratings</option>
+                <!-- Add more table options as needed -->
+            </select>
+
+            <label for="column">Column:</label>
+            <select id="column" onchange="updateOperations()">
+                <!-- Columns will be dynamically populated based on the selected table -->
+            </select>
+
+            <label for="operation">Operation:</label>
+            <select id="operation" onchange="toggleInput()">
+                <!-- Operations will be dynamically populated based on the selected table and column -->
+            </select>
+
+            <div id="inputContainer" style="display: none;">
+                <label for="additionalValue"></label>
+                <input type="text" id="additionalValue">
+            </div>
+
+            <button type="button" onclick="executeQuery()">Submit</button>
+        </form>
+
+
+
+        <div id="searchGrid" style="height: 100%; width: 100%;" class="ag-theme-quartz-dark"></div>
+
+		
+
+        <!-- Display search results here -->
+        <div id="searchResults"></div>
+
+	
+         <button onclick="goBack()">Back to Home</button>
+
+
+
+    </main>
+
+    <script src="https://unpkg.com/ag-grid-community/dist/ag-grid-community.min.noStyle.js"></script>
+    <script>
+        let gridApi; // Declare a global variable to store the grid API
+
+	    // Define columns for each table
+        const tableColumns = {
+            movies: ['title', 'year', 'language', 'isadult', 'runtime', 'region'],
+            movie_cast: ['primaryname', 'birthyear', 'deathyear' ],
+            ratings: ['averagerating']
+            // Add more columns for other tables as needed
+        };
+
+        // Define operations for each data type
+        const columnOperations = {
+            charvar: ['contains', 'equals', 'does not equal', 'is null', 'is not null'],
+            integer: ['equals', 'does not equal', 'greater than', 'less than','greater than or equal to', 'less than or equal to', 'is null', 'is not null']
+            // Add more operations for other data types as needed
+        };
+
+        // Operations that require an additional value
+        const operationsWithInput = ['contains', 'equals', 'does not equal', 'greater than', 'less than', 'greater than or equal to', 'less than or equal to' ];
+
+        const operationMappings = {
+            'equals': '=',
+            'not equals': '!=',
+            'greater than': '>',
+            'less than': '<',
+            'greater than or equal to': '>=',
+            'less than or equal to': '<=',
+            'contains': 'LIKE',
+        };
+
+
+        function updateColumns() {
+            const tableSelect = document.getElementById('table');
+            const columnSelect = document.getElementById('column');
+            const selectedTable = tableSelect.value;
+
+            // Clear previous options
+            columnSelect.innerHTML = '';
+
+            // Populate columns based on the selected table
+            tableColumns[selectedTable].forEach(column => {
+                const option = document.createElement('option');
+                option.value = column;
+                option.text = column;
+                columnSelect.add(option);
+            });
+
+            // Update operations based on the selected column's data type
+            updateOperations();
+        }
+
+        function updateOperations() {
+            const tableSelect = document.getElementById('table');
+            const columnSelect = document.getElementById('column');
+            const operationSelect = document.getElementById('operation');
+            const selectedTable = tableSelect.value;
+            const selectedColumn = columnSelect.value;
+
+            // Clear previous options
+            operationSelect.innerHTML = '';
+
+            // Get data type of the selected column (you need to define this logic based on your data model)
+            columnDataType = getColumnDataType(selectedTable, selectedColumn);
+            console.log(columnDataType);
+
+            // Populate operations based on the data type
+            columnOperations[columnDataType].forEach(operation => {
+                const option = document.createElement('option');
+                option.value = operation;
+                option.text = operation;
+                operationSelect.add(option);
+            });
+        }
+
+        function getColumnDataType(table, column) {
+             dataTypes = {
+                title: 'charvar',
+                year: 'integer',
+                language: 'charvar',
+                isadult:'integer',
+                runtime:'integer',
+                region:'charvar',
+                primaryname:'charvar',
+                birthyear: 'integer',
+                deathyear:'integer',
+                averagerating:'integer'
+             };
+
+
+
+            return dataTypes[column];
+
+
+        }
+
+
+        function toggleInput() {
+            const operationSelect = document.getElementById('operation');
+            const inputContainer = document.getElementById('inputContainer');
+            const selectedOperation = operationSelect.value;
+
+            // Show input if the selected operation requires it, hide otherwise
+            inputContainer.style.display = operationsWithInput.includes(selectedOperation) ? 'block' : 'none';
+        }
+
+
+
+        async function executeQuery() {
+            // Retrieve the selected values
+            var selectedTable = document.getElementById('table').value;
+            var selectedColumn = document.getElementById('column').value;
+            var selectedOperation = document.getElementById('operation').value;
+            var additionalValue = document.getElementById('additionalValue').value;
+
+            // Get the SQL symbol for the selected operation
+            var sqlSymbol = operationMappings[selectedOperation];
+
+            //if (sqlSymbol == NULL){ sqlSymbol = selectedOperation}
+            console.log(sqlSymbol);
+
+
+
+            // Construct the SQL query based on the selected options
+            var sqlQuery = `SELECT * FROM ${selectedTable} WHERE ${selectedColumn} ${sqlSymbol}`;
+
+            // Add the additional value if the operation requires input
+            if (sqlSymbol !== undefined) {
+                // Handle the case where the additional value is a string (enclose in single quotes)
+                additionalValue = isNaN(additionalValue) ? `'${additionalValue}'` : additionalValue;
+                additionalValue = additionalValue.replace(/'/g, ''); // Remove single quotes
+                sqlQuery += ` ${sqlSymbol === 'LIKE' ? `'%${additionalValue}%'` : additionalValue}`;
+            }
+
+            // Output the SQL query (replace this with your actual logic)
+            console.log(sqlQuery);
+
+            try {
+                const response = await fetch(`fetch_sql_command.php?query=${encodeURIComponent(sqlQuery)}`);
+                const data = await response.json();
+
+                // Remove the existing grid before displaying the new one
+                removeExistingGrid();
+                displayDataInGrid(data);
+            } catch (error) {
+                console.error('Error executing search:', error);
+            }
+        }
+
+
+
+        function goBack() {
+            // Navigate back to the home page (index.html)
+            window.location.href = 'index.html';
+        }
+
+	
+        async function executeSearch() {
+            const searchQuery = document.getElementById('sqlInput').value;
+            console.log(searchQuery);
+
+
+            try {
+                const response = await fetch(`fetch_sql_command.php?query=${encodeURIComponent(searchQuery)}`);
+                const data = await response.json();
+
+                // Remove the existing grid before displaying the new one
+                removeExistingGrid();
+                displayDataInGrid(data);
+            } catch (error) {
+                console.error('Error executing search:', error);
+            }
+
+        }
+
+
+        function displayDataInGrid(data) {
+            const columnDefs = Object.keys(data[0]).map(columnName => ({ headerName: columnName, field: columnName,     sortable: true }));
+            const gridOptions = {
+                columnDefs: columnDefs,
+                rowData: data,
+                pagination: true,
+                domLayout: 'autoHeight',
+                paginationPageSize: 20,
+            };
+
+                // Create ag-Grid
+                new agGrid.Grid(document.getElementById('searchGrid'), gridOptions);
+            }
+
+
+
+        function removeExistingGrid() {
+            // Get the existing grid container element
+            const gridContainer = document.getElementById('searchGrid');
+
+            // Check if there is an existing grid
+            if (gridContainer.firstChild) {
+                // Remove the existing grid
+                gridContainer.removeChild(gridContainer.firstChild);
+            }
+        }
+
+
+    </script>
+</body>
+</html>

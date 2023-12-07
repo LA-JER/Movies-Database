@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Movie Details</title>
+
+    <!-- Add your stylesheets or inline styles here -->
+	<style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color:color-mix(in srgb, #fff, #0b1d28 97%);
+            color: #fff; /* Light text color */
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        header {
+            background-color: color-mix(in srgb, #fff, #0b1d28 87%);
+            padding: 10px;
+            text-align: center;
+        }
+
+        main {
+            padding: 20px;
+            text-align: center;
+        }
+
+
+	button {
+    		background-color: color-mix(in srgb, #fff, #0b1d28 97%);
+		color: #fff;
+    		padding: 10px 20px;
+    		margin: 5px;
+    		border: none;
+    		cursor: pointer;
+    		transition: background-color 0.3s;
+	}
+
+	button:hover {
+    		background-color: color-mix(in srgb, #fff, #0b1d28 87%);
+	}
+
+
+    </style>
+	<link rel="stylesheet" href="https://unpkg.com/ag-grid-community/styles/ag-grid.css">
+        <link rel="stylesheet" href="https://unpkg.com/ag-grid-community/styles/ag-theme-alpine.css">
+
+
+</head>
+<body>
+    <header>
+        <h1>Movie Details</h1>
+    </header>
+    <main id="movieDetails">
+        <!-- Movie details will be displayed here -->
+    </main>
+
+
+	 <button onclick="goBack()">Back to Home</button>
+	<script src="https://unpkg.com/ag-grid-community/dist/ag-grid-community.min.noStyle.js"></script>
+    <script>
+	 let gridApi; // Declare a global variable to store the grid API
+	 
+	function onFirstDataRendered(params) {
+            gridApi = params.api;
+	}
+
+
+        document.addEventListener('DOMContentLoaded', function () {
+            // Get the movie ID from the URL parameters
+            const urlParams = new URLSearchParams(window.location.search);
+            const movieid = urlParams.get('movieid');
+
+            // Fetch detailed information about the movie using the movieID
+            fetchMovieDetails(movieid);
+        });
+
+        async function fetchMovieDetails(movieid) {
+            try {
+                // Fetch the detailed information for the specified movieID
+                const response = await fetch(`fetch_movie_details.php?movieid=${encodeURIComponent(movieid)}`);
+                const movieDetails = await response.json();
+
+
+		
+        if (!response.ok) {
+            throw new Error(`Failed to fetch movie details (HTTP ${response.status})`);
+        }
+
+
+                // Display the movie details on the page
+                displayMovieDetails(movieDetails);
+            } catch (error) {
+                console.error('Error fetching movie details:', error);
+            }
+        }
+
+	
+
+        function displayMovieDetails(data) {
+            const movieDetailsContainer = document.getElementById('movieDetails');
+
+            // Create HTML content to display movie details
+            const movieDetailsHTML = `
+                <h2>${data.movieDetails.title}</h2>
+                <p>Year: ${data.movieDetails.year}</p>
+                <p>Runtime: ${data.movieDetails.runtime} minutes</p>
+                <p>Genres: ${data.movieDetails.genres}</p>
+            `;
+
+            // Create HTML content to display cast members
+            const castMembersHTML = data.castMembers.map(member => `
+                <div>
+                    <h3>${member.primaryname}</h3>
+                    <p>Role: ${member.roles}</p>
+                    <p>Birth Year: ${member.birthyear}</p>
+                    <p>Death Year: ${member.deathyear || 'Still alive'}</p>
+                </div>
+            `).join('');
+
+            // Set the HTML content in the movie details container
+            movieDetailsContainer.innerHTML = movieDetailsHTML + castMembersHTML;
+        }
+	
+        function goBack() {
+            // Navigate back to the home page (index.html)
+            window.location.href = 'index.html';
+        }
+
+
+    </script>
+</body>
+</html>
+		
