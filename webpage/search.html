@@ -181,6 +181,8 @@
             'greater than or equal to': '>=',
             'less than or equal to': '<=',
             'contains': 'LIKE',
+		'is null':'is null',
+		'is not null':'is not null',
         };
 
 
@@ -298,6 +300,7 @@
                 displayDataInGrid(data);
             } catch (error) {
                 console.error('Error executing search:', error);
+		alert("Database returned nothing!");
             }
         }
 
