@@ -66,7 +66,7 @@
             fetchMovieDetails(movieid);
         } else if (currentPath.includes('search.html')) {
 
-            initializeSearchPage();
+            //initializeSearchPage();
         }
     });
 
@@ -229,7 +229,7 @@
         operationSelect.innerHTML = '';
 
         // Get data type of the selected column (you need to define this logic based on your data model)
-        columnDataType = dataTypes[column];
+        columnDataType = dataTypes[selectedColumn];
         console.log(columnDataType);
 
         // Populate operations based on the data type
@@ -304,6 +304,71 @@
             advancedSearchToggle.textContent = 'Show Advanced Search';
         }
     }
+
+
+	  
+    async function executeSearch() {
+            const searchQuery = document.getElementById('sqlInput').value;
+            console.log(searchQuery);
+    
+    
+            try {
+                const response = await fetch(`fetch_sql_command.php?query=${encodeURIComponent(searchQuery)}`);
+                const data = await response.json();
+    
+                // Remove the existing grid before displaying the new one
+                removeExistingGrid();
+                displayDataInGrid(data);
+            } catch (error) {
+                console.error('Error executing search:', error);
+            }
+    
+    }
+    
+    
+    async function executeQuery() {
+        // Retrieve the selected values
+        var selectedTable = document.getElementById('table').value;
+        var selectedColumn = document.getElementById('column').value;
+        var selectedOperation = document.getElementById('operation').value;
+        var additionalValue = document.getElementById('additionalValue').value;
+
+        // Get the SQL symbol for the selected operation
+        var sqlSymbol = operationMappings[selectedOperation];
+
+        //if (sqlSymbol == NULL){ sqlSymbol = selectedOperation}
+        console.log(sqlSymbol);
+
+
+
+        // Construct the SQL query based on the selected options
+        var sqlQuery = `SELECT * FROM ${selectedTable} WHERE ${selectedColumn} ${sqlSymbol}`;
+
+        // Add the additional value if the operation requires input
+        if (sqlSymbol !== undefined) {
+            // Handle the case where the additional value is a string (enclose in single quotes)
+            additionalValue = isNaN(additionalValue) ? `'${additionalValue}'` : additionalValue;
+            additionalValue = additionalValue.replace(/'/g, ''); // Remove single quotes
+            sqlQuery += ` ${sqlSymbol === 'LIKE' ? `'%${additionalValue}%'` : additionalValue}`;
+        }
+
+        // Output the SQL query (replace this with your actual logic)
+        console.log(sqlQuery);
+
+        try {
+            const response = await fetch(`fetch_sql_command.php?query=${encodeURIComponent(sqlQuery)}`);
+            const data = await response.json();
+
+            // Remove the existing grid before displaying the new one
+            removeExistingGrid();
+            displayDataInGrid(data);
+        } catch (error) {
+            console.error('Error executing search:', error);
+            alert("Database returned nothing!");
+        }
+    }
+
+
 
 
     function toggleInput() {
