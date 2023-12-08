@@ -1,0 +1,74 @@
+body {
+    font-family: 'Arial', sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: color-mix(in srgb, #fff, #0b1d28 97%);
+    color: #fff; /* Light text color */
+    transition: background-color 0.3s, color 0.3s;
+}
+
+header {
+    background-color: color-mix(in srgb, #fff, #0b1d28 87%);
+    padding: 10px;
+    text-align: center;
+}
+
+main {
+    padding: 20px;
+    text-align: center;
+}
+
+.clickable-div {
+    background-color: color-mix(in srgb, #fff, #0b1d28 97%);
+    color: #fff;
+    padding: 20px;
+    margin: 10px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.clickable-div:hover {
+    background-color: color-mix(in srgb, #fff, #0b1d28 75%);
+}
+
+button {
+    background-color: color-mix(in srgb, #fff, #0b1d28 97%);
+    color: #fff;
+    padding: 10px 20px;
+    margin: 5px;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+button:hover {
+        background-color: color-mix(in srgb, #fff, #0b1d28 87%);
+}
+
+#searchBar {
+    display: flex;
+    gap: 10px;
+}
+
+#sqlInput {
+    padding: 10px;
+    flex: 1;
+}
+
+#executeButton {
+    padding: 25px;
+    background-color: #2196F3;
+    color: #fff;
+    cursor: pointer;
+    border: none;
+}
+
+#advancedSearchToggle {
+    background-color: color-mix(in srgb, #fff, #0b1d28 90%);
+
+}
+
+#back {
+    padding: 25px;
+    margin-top: 125px;
+}

@@ -3,162 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <style>
-        body {
-            font-family: 'Arial', sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: color-mix(in srgb, #fff, #0b1d28 97%);
-            color: #fff; /* Light text color */
-            transition: background-color 0.3s, color 0.3s;
-        }
-
-        header {
-            background-color: color-mix(in srgb, #fff, #0b1d28 87%);
-            padding: 10px;
-            text-align: center;
-        }
-
-        main {
-            padding: 20px;
-            text-align: center;
-        }
-	
-	
-
-        /* Style for clickable div */
-        .clickable-div {
-            background-color: color-mix(in srgb, #fff, #0b1d28 97%);
-            color: #fff;
-            padding: 20px;
-            margin: 10px;
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
-
-        
-
-        .clickable-div:hover {
-            background-color: color-mix(in srgb, #fff, #0b1d28 75%);
-        }
-
-    </style>
+    <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://unpkg.com/ag-grid-community/styles/ag-grid.css">
     <link rel="stylesheet" href="https://unpkg.com/ag-grid-community/styles/ag-theme-quartz.css">
-
     <title>Amherst Movie Database</title>
 </head>
 <body>
     <header>
         <h1>Movie DataBase</h1>
-	<div class="clickable-div" onclick="redirectToSearch()">
-            Build your Query
-        </div>
+	<div class="clickable-div" onclick="redirectToSearch()">Build your Query</div>
     </header>
     <main>
 
         <div id="movieGrid" style="height: 100%; width: 100%;" class="ag-theme-quartz-dark"></div>
 
-
-
-
     </main>
     <script src="https://unpkg.com/ag-grid-community/dist/ag-grid-community.min.noStyle.js"></script>
-    <script>
-        let gridApi; // Declare a global variable to store the grid API
-
-
-	document.addEventListener('DOMContentLoaded', function () {
-            fetchMovies();
-        });
-
-        function onFirstDataRendered(params) {
-            gridApi = params.api;
-            // Add a click event listener to the grid
-            gridApi.addEventListener('cellClicked', onCellClicked);
-        }
-
-
-	 async function fetchMovies() {
-            try {
-                const response = await fetch('fetch_data.php');
-                const data = await response.json();
-
-
-                const columnDefs = Object.keys(data[0]).map(columnName => ({
-         
-		
-
-	       headerName: columnName,
-                field: columnName,
-                sortable: true,
-                cellRenderer: (params) => {
-                  // Check if the column is 'region'
-                  if (columnName === 'region') {
-                    // Create an image element for the flag
-                    const flagImg = document.createElement('img');
-                    flagImg.src = getFlagURL(params.value);
-                    flagImg.alt = params.value; // Use the country code as alt text
-                    return flagImg;
-                  }
-		  else if(columnName === 'movieid'){
-
-			// Generate the link directly in the cell
-                            return `<a href="movie-details.html?movieid=${params.value}">${params.value}</a>`;
-
-
-		  }
-
-
-
-		 else {
-                    // Return the regular text value for other columns
-                    return params.value;
-                  }
-                },
-              }));
-
-              const gridOptions = {
-                columnDefs: columnDefs,
-                rowData: data,
-                pagination: true,
-                domLayout: 'autoHeight',
-                paginationPageSize: 20,
-                height: 400,  // Set your desired height
-                onFirstDataRendered: onFirstDataRendered, // Add callback function
-              };
-
-              // Create ag-Grid
-              new agGrid.Grid(document.getElementById('movieGrid'), gridOptions);
-
-            } catch (error) {
-              console.error('Error fetching movies:', error);
-            }
-        }
-
-
-
-
-        // Function to get the flag URL based on the country code
-        function getFlagURL(countryCode) {
-
-          // Special case for 'UK' region
-          if (countryCode.toUpperCase() === 'UK') {
-            return 'https://flagcdn.com/16x12/gb.png';
-          }
-
-          // Use the flagcdn.com format to get the flag URL
-          return `https://flagcdn.com/16x12/${countryCode.toLowerCase()}.png`;
-        }
-	
-
-	function redirectToSearch() {
-            window.location.href = 'search.html';
-        }
-
-	function linkRenderer(params) {
-            return `<a href="movie-details.html?movieid=${params.value}">${params.value}</a>`;
-        }
-    </script>
+    <script src="main.js"></script>
 </body>
 </html>
