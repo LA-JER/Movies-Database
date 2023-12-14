@@ -11,7 +11,7 @@
 
     // Define operations for each data type
     const columnOperations = {
-        charvar: ['contains', 'equals', 'does not equal', 'is null', 'is not null'],
+        charvar: ['contains', 'not like', 'is null', 'is not null'],
         integer: ['equals', 'does not equal', 'greater than', 'less than','greater than or equal to', 'less than or equal to', 'is null', 'is not null']
     };
 
@@ -23,12 +23,13 @@
         'greater than',
         'less than',
         'greater than or equal to',
-        'less than or equal to'
+        'less than or equal to',
+	'not like'
     ];
 
     const operationMappings = {
         'equals': '=',
-        'not equals': '!=',
+        'does not equal': '!=',
         'greater than': '>',
         'less than': '<',
         'greater than or equal to': '>=',
@@ -36,6 +37,7 @@
         'contains': 'LIKE',
         'is null':'is null',
         'is not null':'is not null',
+	'not like':'NOT LIKE'
     };
 
     const dataTypes = {
@@ -54,7 +56,7 @@
     document.addEventListener('DOMContentLoaded', function () {
         const currentPath = window.location.pathname;
 
-        if (currentPath.includes('index.html')) {
+        if ( currentPath === '/' || currentPath.includes('index.html')) {
 
             fetchMovies();
         } else if (currentPath.includes('movie-details.html')) {
@@ -349,8 +351,18 @@
             // Handle the case where the additional value is a string (enclose in single quotes)
             additionalValue = isNaN(additionalValue) ? `'${additionalValue}'` : additionalValue;
             additionalValue = additionalValue.replace(/'/g, ''); // Remove single quotes
-            sqlQuery += ` ${sqlSymbol === 'LIKE' ? `'%${additionalValue}%'` : additionalValue}`;
-        }
+
+	    // Add the condition based on the selected operation
+    		if (sqlSymbol === 'LIKE') {
+        		sqlQuery += ` '%${additionalValue}%'`;
+    		} else if (sqlSymbol === 'NOT LIKE') {
+        		sqlQuery += ` '%${additionalValue}%'`;
+    		} else {
+        		sqlQuery += ` ${additionalValue}`;
+	    	}
+
+
+	}
 
         // Output the SQL query (replace this with your actual logic)
         console.log(sqlQuery);
@@ -378,6 +390,15 @@
 
         // Show input if the selected operation requires it, hide otherwise
         inputContainer.style.display = operationsWithInput.includes(selectedOperation) ? 'block' : 'none';
+    
+	
+        // Clear the inner text when hiding
+        if (inputContainer.style.display === 'none') {
+            const inputElement = document.getElementById('additionalValue');
+            inputElement.value = ''; // Clear the value
+        }
+
+
     }
 
 
