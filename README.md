@@ -30,4 +30,6 @@ Retrieves movie poster using the Open Movie Database (OMDb) API.
 Implements a search functionality with an advanced query builder.
 Users can filter movies based on various criteria (e.g., title, year, genre).
 
-http://cosc-257-node12.cs.amherst.edu/index.html
+
+For a more detailed breakdown of the back end, consider looking at : 
+https://docs.google.com/presentation/d/e/2PACX-1vTGV51QQORG6nRZ644CSlqMTV6YwjOAyUPNmZI9BOH9nxI0JG8EA5bmrbnWD3H5b2BbuYsjE0XZ2RIx/pub?start=false&loop=false&delayms=3000
